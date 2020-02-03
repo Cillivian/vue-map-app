@@ -28,8 +28,12 @@ import {
     Card,
     Collapse,
     CollapseItem,
-    Tag
+    Tag,
+    Switch,
+    Dialog
 } from 'vant';
+Vue.use(Dialog);
+Vue.use(Switch);
 Vue.use(Cell);
 Vue.use(CellGroup);
 Vue.use(Tag);

@@ -28,10 +28,8 @@
           :draggable="marker.draggable"
           :vid="index"
           :key="index"
-          :text="marker.tag"
-          
-        >
-        </el-amap-text>
+          :text="showAll?marker.tag:marker.country"
+        ></el-amap-text>
       </el-amap>
     </div>
 
@@ -41,7 +39,7 @@
       <van-tabbar-item icon="upgrade" @click="show=true;">上传</van-tabbar-item>
     </van-tabbar>
     <van-popup v-model="show" position="bottom" round style="height:75%;" closeable>
-      <Upload @handleAdd="addMarker" @handleAddAll="showAllMarker"></Upload>
+      <Upload @handleAdd="addMarker" @handleAddAll="showAllMarker" @change="handleChange"></Upload>
     </van-popup>
   </div>
 </template>
@@ -57,6 +55,7 @@ export default {
   data() {
     let self = this;
     return {
+      showAll: true,
       dataList: [],
       markers: [], //标记点
       searchOption: {
@@ -107,9 +106,8 @@ export default {
       ],
       events: {
         init(o) {
-                     o.setMapStyle('amap://styles/normal');//自定义的高德地图的样式，我选的是马卡龙
-                       
-               },
+          o.setMapStyle("amap://styles/normal"); //自定义的高德地图的样式，我选的是马卡龙
+        },
         complete() {
           const map = self.amapManager.getMap(); // 获取地图组件实例
           // setFitView(overlayList:Array)
@@ -157,36 +155,40 @@ export default {
       for (let i = 0; i < this.dataList.length; i++) {
         setTimeout(() => {
           this.addMarker(this.dataList[i]);
-              this.toImage(this.dataList[i].name);
-        },2000*i);
+          this.toImage(this.dataList[i].name);
+        }, 2000 * i);
       }
     },
     handleSearch() {
       this.isSearch = !this.isSearch;
     },
+    handleChange(arg) {
+      this.showAll = arg;
+    },
     addMarker(data) {
       var markers = data.points.map(item => {
         return {
           tag: item.tag,
+          country:item.country,
           position: item.position
         };
       });
       console.log(markers);
       this.markers = [];
       this.markers.push(...markers);
-      
-      this.center = getCenter(this.markers)
+
+      this.center = getCenter(this.markers);
       this.show = false;
 
-      function getCenter(markers){
-          let len=markers.length
-          let lngs=markers.reduce((pre,cur)=>{
-              return pre+cur.position[0]
-          },0)
-          let lats=markers.reduce((pre,cur)=>{
-              return pre+cur.position[1]
-          },0)
-          return [lngs/len,lats/len]
+      function getCenter(markers) {
+        let len = markers.length;
+        let lngs = markers.reduce((pre, cur) => {
+          return pre + cur.position[0];
+        }, 0);
+        let lats = markers.reduce((pre, cur) => {
+          return pre + cur.position[1];
+        }, 0);
+        return [lngs / len, lats / len];
       }
     },
     //TODO：搜索地点
@@ -201,6 +203,7 @@ export default {
           this.markers = [];
           this.markers.push({
             tag: "你的位置",
+            conuntry:"你的位置",
             position: [poi.lng, poi.lat]
           });
         });

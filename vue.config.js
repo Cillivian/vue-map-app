@@ -1,5 +1,5 @@
 module.exports = {
-    publicPath: process.env.NODE_ENV === "production" ? "/resume-vue" : "./",
+    publicPath: process.env.NODE_ENV === "production" ? "/resume-vue" : "/",
     outputDir: 'dist',
     lintOnSave: false,
     runtimeCompiler: true, //关键点在这

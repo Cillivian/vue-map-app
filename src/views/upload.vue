@@ -9,10 +9,13 @@
       ></van-uploader>
       <h3>上传文件，文件大小<5M</h3>
       <div class="operation">
-      <van-button plain type="info" @click="handleOk()" class="operation-btn">上传文件解析</van-button>
-      <van-button plain type="info" @click="handleOk()" class="operation-btn">截图全部数据</van-button>
+        <van-button plain type="info" @click="handleOk()" class="operation-btn">上传文件解析</van-button>
+        <van-button plain type="info" @click="handlePrint()" class="operation-btn">截图全部数据</van-button>
+        <div class="operation-btn">
+          简称
+          <van-switch v-model="showAll" />全称
+        </div>
       </div>
-      
     </div>
     <van-collapse v-model="activeNames" v-if="dataList" accordion>
       <van-collapse-item
@@ -28,7 +31,7 @@
               type="primary"
               v-for="(point,index) in data.points"
               :key="index"
-            >{{point.tag}}</van-tag>
+            >{{showAll?point.tag:point.country}}</van-tag>
           </van-cell>
 
           <template slot="right">
@@ -48,17 +51,20 @@ export default {
       activeNames: 0,
       parmas: [],
       fileList: [],
+      showAll: true,
       dataList: [
         {
           name: "安福县-jc",
           count: 2,
           points: [
             {
-              tag: "石陂村",
+              tag: "新乡石陂村",
+              country:"石陂村",
               position: [120.002, 24.0211]
             },
             {
-              tag: "石陂村",
+              tag: "新乡石陂村",
+              country:"石陂村",
               position: [121.402, 25.0211]
             }
           ]
@@ -66,9 +72,15 @@ export default {
       ]
     };
   },
+   watch:{
+      showAll(val, oldVal){
+          console.log("change")
+          this.$emit('change',this.showAll)
+      }
+  },
   methods: {
     onMark(index) {
-      var data = this.dataList[index];
+      var data = this.dataList[parseInt(index)];
       console.log(data);
       this.$emit("handleAdd", data);
     },
@@ -163,62 +175,67 @@ export default {
       }
     },
     getList() {
-    //   console.log(Array.isArray(this.parmas));
-    //   console.log(this.parmas);
-    //   console.log(this.parmas[0]);
+      //   console.log(Array.isArray(this.parmas));
+      //   console.log(this.parmas);
+      //   console.log(this.parmas[0]);
       if (this.parmas !== []) {
         let datas = this.parmas[0];
-    var result = [];
-    var start = 1;
-    var i = 0,
-        obj;
-    var len = datas.length;
-    for (; i < len - 1;) {
-        obj = {
+        var result = [];
+        var start = 1;
+        var i = 0,
+          obj;
+        var len = datas.length;
+        for (; i < len - 1; ) {
+          obj = {
             name: datas[i].name,
-            points: [{
+            points: [
+              {
                 tag: datas[i].tag,
+                country:datas[i].country,
                 position: [datas[i].lng, datas[i].lat]
-            }]
-        };
-        //  console.log(i)
-        for (let j = i + 1; j < len; j++) {
+              }
+            ]
+          };
+          //  console.log(i)
+          for (let j = i + 1; j < len; j++) {
             if (datas[i].name == datas[j].name) {
-                obj.points.push({
-                    tag: datas[j].tag,
-                    position: [datas[j].lng, datas[j].lat]
-                });
-                if (j == len - 1) {
-                    result.push(obj);
-                    i = len;
-                    break;
-                }
-
-            } else if (j == len - 1) {
-                result.push(obj, {
-                    name: datas[j].name,
-                    points: [{
-                        tag: datas[j].tag,
-                        position: [datas[j].lng, datas[j].lat]
-                    }]
-
-                })
+              obj.points.push({
+                tag: datas[j].tag,
+                country:datas[j].country,
+                position: [datas[j].lng, datas[j].lat]
+              });
+              if (j == len - 1) {
+                result.push(obj);
                 i = len;
                 break;
+              }
+            } else if (j == len - 1) {
+              result.push(obj, {
+                name: datas[j].name,
+                points: [
+                  {
+                    tag: datas[j].tag,
+                    country:datas[j].country,
+                    position: [datas[j].lng, datas[j].lat]
+                  }
+                ]
+              });
+              i = len;
+              break;
             } else {
-                i = j;
-                result.push(obj);
-                break;
+              i = j;
+              result.push(obj);
+              break;
             }
-
+          }
         }
-
-    }
-    this.dataList=result;
+        this.dataList = result;
       } else {
-        this.dataList= [];
+        this.dataList = [];
       }
-      this.$emit('handleAddAll',this.dataList)
+    },
+    handlePrint() {
+      this.$emit("handleAddAll", this.dataList);
     }
   }
 };
@@ -236,16 +253,29 @@ export default {
 .delete-button {
   height: 100%;
 }
-.operation{
-    width:100%;
+.operation {
+  width: 100%;
+  display: flex;
+  flex-flow: column, nowrap;
+  justify-content: center;
+  &-btn:nth-child(1) {
+    margin-right: 10px;
+  }
+  &-btn:nth-child(2) {
+    margin-left: 10px;
+  }
+  &-btn:nth-child(3) {
     display:flex;
-    flex-flow: column,nowrap;
     justify-content: center;
-    &-btn:nth-child(1){
-        margin-right:10px; 
+    align-items: center;
+    text-align: center;
+    position: absolute;
+    right: 5px;
+    line-height: 100%;
+    font-size: 15px;
+    &>div{
+        margin: 5px;
     }
-    &-btn:nth-child(2){
-        margin-left:10px; 
-    }
+  }
 }
 </style>
